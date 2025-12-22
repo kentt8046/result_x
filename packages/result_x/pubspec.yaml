@@ -1,0 +1,13 @@
+name: result_x
+description: A Dart-idiomatic Result type package with first-class developer experience.
+version: 0.1.0
+repository: https://github.com/kentt8046/result_x
+
+environment:
+  sdk: ^3.6.0
+
+resolution: workspace
+
+dev_dependencies:
+  coverage:
+  test:
