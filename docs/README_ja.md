@@ -88,7 +88,7 @@ Result<int, String> calculate(int a, int b, int c) {
     final ab = divide(a, b)[$];  // Errなら早期リターン
     final cd = divide(c, 1)[$];
     return ab + cd;
-  }, onError: (e, s) => Err('予期しないエラー: $e'));
+  }, onCatch: (e, s) => Err('予期しないエラー: $e'));
 }
 ```
 
@@ -104,7 +104,7 @@ Future<Result<String, String>> fetchUser(int id) {
     }
     await Future.delayed(Duration(milliseconds: 100));
     return 'User #$id';
-  }, onError: (e, s) => Err('予期しないエラー: $e'));
+  }, onCatch: (e, s) => Err('予期しないエラー: $e'));
 }
 ```
 

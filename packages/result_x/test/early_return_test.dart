@@ -17,7 +17,7 @@ void main() {
           final b = divide(20, 4)[$];
           return a + b;
         },
-        onError: _handleError,
+        onCatch: _handleError,
       );
       expect(result, const Ok<int, String>(10)); // 5 + 5
     });
@@ -29,7 +29,7 @@ void main() {
           final b = divide(20, 4)[$];
           return a + b;
         },
-        onError: _handleError,
+        onCatch: _handleError,
       );
       expect(result, const Err<int, String>('division by zero'));
     });
@@ -47,7 +47,7 @@ void main() {
           final formatted = format(num1 + num2)[$];
           return formatted;
         },
-        onError: _handleError,
+        onCatch: _handleError,
       );
       expect(result, const Ok<String, String>('Value: 20'));
     });
@@ -65,7 +65,7 @@ void main() {
           final b = await asyncDivide(20, 4)[$];
           return a + b;
         },
-        onError: _handleError,
+        onCatch: _handleError,
       );
       expect(result, const Ok<int, String>(10));
     });
@@ -83,7 +83,7 @@ void main() {
           final b = await asyncDivide(20, 0)[$];
           return a + b;
         },
-        onError: _handleError,
+        onCatch: _handleError,
       );
       expect(result, const Err<int, String>('division by zero'));
     });
@@ -96,7 +96,7 @@ void main() {
           final b = divide(20, 4)[$]; // sync
           return a + b;
         },
-        onError: _handleError,
+        onCatch: _handleError,
       );
       expect(result, const Ok<int, String>(10));
     });

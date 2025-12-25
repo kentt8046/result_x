@@ -313,7 +313,7 @@ void main() {
 
   group('Result factory', () {
     test('returns Ok when function succeeds', () {
-      final result = Result<int, String>(($) => 42, onError: handleError);
+      final result = Result<int, String>(($) => 42, onCatch: handleError);
       expect(result, const Ok<int, String>(42));
     });
 
@@ -323,7 +323,7 @@ void main() {
           const Err<int, String>('error')[$];
           return 42;
         },
-        onError: handleError,
+        onCatch: handleError,
       );
       expect(result, const Err<int, String>('error'));
     });
@@ -337,7 +337,7 @@ void main() {
           final b = getValue(20)[$];
           return a + b;
         },
-        onError: handleError,
+        onCatch: handleError,
       );
       expect(result, const Ok<int, String>(30));
     });
@@ -352,15 +352,15 @@ void main() {
           final c = getValue(20)[$];
           return a + b + c;
         },
-        onError: handleError,
+        onCatch: handleError,
       );
       expect(result, const Err<int, String>('negative: -5'));
     });
 
-    test('calls onError for exceptions', () {
+    test('calls onCatch for exceptions', () {
       final result = Result<int, String>(
         ($) => throw Exception('test exception'),
-        onError: (e, s) => Err('caught: $e'),
+        onCatch: (e, s) => Err('caught: $e'),
       );
       expect(result.isErr, isTrue);
       expect((result as Err).error, contains('caught:'));
@@ -370,7 +370,7 @@ void main() {
       expect(
         () => Result<int, String>(
           ($) => throw StateError('programming error'),
-          onError: (e, s) => const Err('should not reach'),
+          onCatch: (e, s) => const Err('should not reach'),
         ),
         throwsStateError,
       );
@@ -381,7 +381,7 @@ void main() {
     test('returns Ok when async function succeeds', () async {
       final result = await Result.async<int, String>(
         ($) async => 42,
-        onError: handleError,
+        onCatch: handleError,
       );
       expect(result, const Ok<int, String>(42));
     });
@@ -392,7 +392,7 @@ void main() {
           const Err<int, String>('error')[$];
           return 42;
         },
-        onError: handleError,
+        onCatch: handleError,
       );
       expect(result, const Err<int, String>('error'));
     });
@@ -406,15 +406,15 @@ void main() {
           final b = await asyncGetValue(20)[$];
           return a + b;
         },
-        onError: handleError,
+        onCatch: handleError,
       );
       expect(result, const Ok<int, String>(30));
     });
 
-    test('calls onError for exceptions', () async {
+    test('calls onCatch for exceptions', () async {
       final result = await Result.async<int, String>(
         ($) async => throw Exception('test exception'),
-        onError: (e, s) => Err('caught: $e'),
+        onCatch: (e, s) => Err('caught: $e'),
       );
       expect(result.isErr, isTrue);
       expect((result as Err).error, contains('caught:'));
@@ -424,7 +424,7 @@ void main() {
       expect(
         () => Result.async<int, String>(
           ($) async => throw StateError('programming error'),
-          onError: (e, s) => const Err('should not reach'),
+          onCatch: (e, s) => const Err('should not reach'),
         ),
         throwsStateError,
       );

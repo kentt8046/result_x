@@ -50,15 +50,16 @@ result_x/
 │   │   ├── lib/
 │   │   ├── test/
 │   │   ├── example/
+│   │   ├── docs/
+│   │   │   └── best_practices.md  # ベストプラクティス
 │   │   └── pubspec.yaml
 │   ├── result_x_test/     # テストmatcher（1.0.0）
 │   │   └── pubspec.yaml
 │   └── result_x_lint/     # lintルール（1.0.0）
 │       └── pubspec.yaml
-└── doc/
+└── docs/
     ├── design_doc.md      # 設計ドキュメント
-    ├── README_ja.md       # パッケージ説明（日本語）
-    └── best_practices.md  # ベストプラクティス
+    └── README_ja.md       # パッケージ説明（日本語）
 ```
 
 ---
@@ -96,9 +97,9 @@ Dartらしい直感的API / 型安全 / 関数型知識不要 / パターンマ�
 ### 5.1 基本構造
 
 ```dart
-sealed class Result<T, E> { }
-class Ok<T, E> extends Result<T, E> { final T value; }
-class Err<T, E> extends Result<T, E> { final E error; }
+sealed class Result<T, E extends Object> { }
+class Ok<T, E extends Object> extends Result<T, E> { final T value; }
+class Err<T, E extends Object> extends Result<T, E> { final E error; }
 ```
 
 ### 5.2 $構文（早期リターン）
@@ -107,16 +108,22 @@ class Err<T, E> extends Result<T, E> { final E error; }
 
 ```dart
 // 同期版
-Result<Data, Error> process() => Result(($) {
-  final user = getUser()[$];  // Errなら早期リターン
-  return processData(user);    // 例外もErrに変換
-});
+Result<Data, Error> process() => Result(
+  ($) {
+    final user = getUser()[$];  // Errなら早期リターン
+    return processData(user);    // 例外もErrに変換
+  },
+  onCatch: (e, s) => Err(Error.from(e)),
+);
 
 // 非同期版
-Future<Result<Data, Error>> processAsync() => Result.async(($) async {
-  final user = await getUser()[$];
-  return processData(user);
-});
+Future<Result<Data, Error>> processAsync() => Result.async(
+  ($) async {
+    final user = await getUser()[$];
+    return processData(user);
+  },
+  onCatch: (e, s) async => Err(Error.from(e)),
+);
 ```
 
 #### 5.2.1 内部実装
@@ -126,12 +133,12 @@ class EarlyReturnSymbol<E> {
   const EarlyReturnSymbol._();
 }
 
-sealed class Result<T, E> {
+sealed class Result<T, E extends Object> {
   T operator [](EarlyReturnSymbol<E> $);
 }
 
 // Future拡張
-extension on Future<Result<T, E>> {
+extension on Future<Result<T, E extends Object>> {
   Future<T> operator [](EarlyReturnSymbol<E> $);
 }
 ```
@@ -141,35 +148,35 @@ extension on Future<Result<T, E>> {
 | 説明 | Rust | result_x | 戻り値 |
 |------|------|----------|--------|
 | **判定** |
-| 成功判定 | `is_ok()` | `isOk` | `bool` |
-| エラー判定 | `is_err()` | `isErr` | `bool` |
-| 成功かつ条件判定 | `is_ok_and(fn)` | `isOkWhere(fn)` | `bool` |
-| エラーかつ条件判定 | `is_err_and(fn)` | `isErrWhere(fn)` | `bool` |
+| 成功判定 | `is_ok()` | `isOk` | `bool` / `Future<bool>` |
+| エラー判定 | `is_err()` | `isErr` | `bool` / `Future<bool>` |
+| 成功かつ条件判定 | `is_ok_and(fn)` | `isOkWhere(fn)` | `bool` / `Future<bool>` |
+| エラーかつ条件判定 | `is_err_and(fn)` | `isErrWhere(fn)` | `bool` / `Future<bool>` |
 | **Optional変換** |
-| 成功値をnullable取得 | `ok()` | `ok()` | `T?` |
-| エラー値をnullable取得 | `err()` | `err()` | `E?` |
+| 成功値をnullable取得 | `ok()` | `ok()` | `T?` / `Future<T?>` |
+| エラー値をnullable取得 | `err()` | `err()` | `E?` / `Future<E?>` |
 | **値取得** |
-| 強制取得 | `unwrap()` | `getOrThrow()` | `T` |
-| デフォルト付き取得 | `unwrap_or(x)` | ※`getOr`で代替 | - |
-| 遅延デフォルト取得 | `unwrap_or_else(fn)` | `getOr(orElse: (E) => T)` | `T` |
-| メッセージ付き強制取得 | `expect(msg)` | `getOrThrow(msg)` | `T` |
+| 強制取得 | `unwrap()` | `getOrThrow()` | `T` / `Future<T>` |
+| デフォルト付き取得 | `unwrap_or(x)` | ※`get`で代替 | - |
+| 遅延デフォルト取得 | `unwrap_or_else(fn)` | `get(orElse: (E) => T)` | `T` / `Future<T>` |
+| メッセージ付き強制取得 | `expect(msg)` | `getOrThrow(msg)` | `T` / `Future<T>` |
 | **変換** |
-| 成功値変換 | `map(fn)` | `map(fn)` | `Result<U, E>` |
+| 成功値変換 | `map(fn)` | `map(fn)` | `Result<U, E>` / `FutureResult<U, E>` |
 | 成功値変換+デフォルト | `map_or(x, fn)` | ※`fold`で代替 | - |
-| 成功値変換+遅延デフォルト | `map_or_else(d, fn)` | `fold(fn, orElse: (E) => U)` | `U` |
-| エラー値変換 | `map_err(fn)` | `mapError(fn)` | `Result<T, F>` |
+| 成功値変換+遅延デフォルト | `map_or_else(d, fn)` | `fold(fn, orElse: (E) => U)` | `U` / `Future<U>` |
+| エラー値変換 | `map_err(fn)` | `mapError(fn)` | `Result<T, F>` / `FutureResult<T, F>` |
 | **チェーン** |
 | 成功時に別Result | `and(res)` | ※`flatMap`で代替 | - |
-| 成功時に関数実行 | `and_then(fn)` | `flatMap(fn)` | `Result<U, E>` |
+| 成功時に関数実行 | `and_then(fn)` | `flatMap(fn)` | `Result<U, E>` / `FutureResult<U, E>` |
 | エラー時に別Result | `or(res)` | ※`recover`で代替 | - |
-| エラー回復 | `or_else(fn)` | `recover(fn)` | `Result<T, F>` |
+| エラー回復 | `or_else(fn)` | `recover(fn)` | `Result<T, F>` / `FutureResult<T, F>` |
 | **デバッグ** |
-| 成功値を覗く | `inspect(fn)` | `tap(fn)` | `Result<T, E>` |
-| エラー値を覗く | `inspect_err(fn)` | `tapError(fn)` | `Result<T, E>` |
+| 成功値を覗く | `inspect(fn)` | `tap(fn)` | `Result<T, E>` / `FutureResult<T, E>` |
+| エラー値を覗く | `inspect_err(fn)` | `tapError(fn)` | `Result<T, E>` / `FutureResult<T, E>` |
 | **型変換** |
-| 成功値の型変換 | N/A | `castOk<U>()` | `Result<U, E>` |
-| エラー値の型変換 | N/A | `castErr<F>()` | `Result<T, F>` |
-| 両方の型変換 | N/A | `cast<U, F>()` | `Result<U, F>` |
+| 成功値の型変換 | N/A | `castOk<U>()` | `Result<U, E>` / `FutureResult<U, E>` |
+| エラー値の型変換 | N/A | `castErr<F>()` | `Result<T, F>` / `FutureResult<T, F>` |
+| 両方の型変換 | N/A | `cast<U, F>()` | `Result<U, F>` / `FutureResult<U, F>` |
 
 ### 5.4 Nullable拡張（Rust Optionとの対応）
 

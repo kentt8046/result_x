@@ -79,7 +79,7 @@ void earlyReturnExample() {
         final cd = divide(c, 1)[$];
         return ab + cd;
       },
-      onError: (e, s) => Err('Unexpected: $e'),
+      onCatch: (e, s) => Err('Unexpected: $e'),
     );
   }
 
@@ -110,7 +110,7 @@ Future<void> asyncExample() async {
 
         return 'User #$id';
       },
-      onError: (e, s) => Err('Unexpected: $e'),
+      onCatch: (e, s) => Err('Unexpected: $e'),
     );
   }
 

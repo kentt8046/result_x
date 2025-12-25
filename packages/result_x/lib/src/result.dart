@@ -28,7 +28,7 @@ sealed class Result<T, E extends Object> {
   ///
   /// Exceptions thrown in the callback are handled as follows:
   /// - [Error] exceptions are rethrown (programming errors should not be caught)
-  /// - All other exceptions are passed to [onError] to be converted to [Err]
+  /// - All other exceptions are passed to [onCatch] to be converted to [Err]
   ///
   /// Example:
   /// ```dart
@@ -38,12 +38,12 @@ sealed class Result<T, E extends Object> {
   ///     final b = getValueB()[$];  // Returns early if Err
   ///     return a + b;
   ///   },
-  ///   onError: (e, s) => Err('Error: $e'),
+  ///   onCatch: (e, s) => Err('Error: $e'),
   /// );
   /// ```
   factory Result(
     T Function(EarlyReturnSymbol<E> $) fn, {
-    required Result<T, E> Function(Object error, StackTrace stackTrace) onError,
+    required Result<T, E> Function(Object error, StackTrace stackTrace) onCatch,
   }) {
     try {
       return Ok(fn(EarlyReturnSymbol<E>._()));
@@ -52,7 +52,7 @@ sealed class Result<T, E extends Object> {
     } on Error {
       rethrow;
     } catch (e, s) {
-      return onError(e, s);
+      return onCatch(e, s);
     }
   }
   const Result._();
@@ -70,7 +70,7 @@ sealed class Result<T, E extends Object> {
   ///     final data = await getData(user)[$];
   ///     return data;
   ///   },
-  ///   onError: (e, s) => Err('Error: $e'),
+  ///   onCatch: (e, s) => Err('Error: $e'),
   /// );
   /// ```
   static Future<Result<T, E>> async<T, E extends Object>(
@@ -78,7 +78,7 @@ sealed class Result<T, E extends Object> {
     required FutureOr<Result<T, E>> Function(
       Object error,
       StackTrace stackTrace,
-    ) onError,
+    ) onCatch,
   }) async {
     try {
       return Ok(await fn(EarlyReturnSymbol<E>._()));
@@ -87,7 +87,7 @@ sealed class Result<T, E extends Object> {
     } on Error {
       rethrow;
     } catch (e, s) {
-      return onError(e, s);
+      return onCatch(e, s);
     }
   }
 
