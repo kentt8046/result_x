@@ -77,7 +77,7 @@ void earlyReturnExample() {
       ($) {
         final ab = divide(a, b)[$]; // Early return if error
         final cd = divide(c, 1)[$];
-        return ab + cd;
+        return Ok(ab + cd);
       },
       onCatch: (e, s) => Err('Unexpected: $e'),
     );
@@ -108,7 +108,7 @@ Future<void> asyncExample() async {
           const Err<String, String>('Invalid ID')[$];
         }
 
-        return 'User #$id';
+        return Ok('User #$id');
       },
       onCatch: (e, s) => Err('Unexpected: $e'),
     );

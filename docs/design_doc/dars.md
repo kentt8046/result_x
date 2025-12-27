@@ -5,7 +5,7 @@
 | **Author** | @kentt8046 |
 | **Status** | Draft |
 | **Created** | 2025-12-21 |
-| **Last Updated** | 2025-12-21 |
+| **Last Updated** | 2025-12-27 |
 
 ---
 
@@ -111,7 +111,7 @@ class Err<T, E extends Object> extends Result<T, E> { final E error; }
 Result<Data, Error> process() => Result(
   ($) {
     final user = getUser()[$];  // Errなら早期リターン
-    return processData(user);    // 例外もErrに変換
+    return Ok(processData(user));    // 例外もErrに変換
   },
   onCatch: (e, s) => Err(Error.from(e)),
 );
@@ -120,7 +120,7 @@ Result<Data, Error> process() => Result(
 Future<Result<Data, Error>> processAsync() => Result.async(
   ($) async {
     final user = await getUser()[$];
-    return processData(user);
+    return Ok(processData(user));
   },
   onCatch: (e, s) async => Err(Error.from(e)),
 );

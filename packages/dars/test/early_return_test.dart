@@ -15,7 +15,7 @@ void main() {
         ($) {
           final a = divide(10, 2)[$];
           final b = divide(20, 4)[$];
-          return a + b;
+          return Ok(a + b);
         },
         onCatch: _handleError,
       );
@@ -27,7 +27,7 @@ void main() {
         ($) {
           final a = divide(10, 0)[$]; // This should early return
           final b = divide(20, 4)[$];
-          return a + b;
+          return Ok(a + b);
         },
         onCatch: _handleError,
       );
@@ -45,7 +45,7 @@ void main() {
           final num1 = divide(100, 10)[$];
           final num2 = divide(50, 5)[$];
           final formatted = format(num1 + num2)[$];
-          return formatted;
+          return Ok(formatted);
         },
         onCatch: _handleError,
       );
@@ -63,7 +63,7 @@ void main() {
         ($) async {
           final a = await asyncDivide(10, 2)[$];
           final b = await asyncDivide(20, 4)[$];
-          return a + b;
+          return Ok(a + b);
         },
         onCatch: _handleError,
       );
@@ -81,7 +81,7 @@ void main() {
         ($) async {
           final a = await asyncDivide(10, 2)[$];
           final b = await asyncDivide(20, 0)[$];
-          return a + b;
+          return Ok(a + b);
         },
         onCatch: _handleError,
       );
@@ -94,7 +94,7 @@ void main() {
           final a = divide(10, 2)[$]; // sync
           await Future<void>.delayed(Duration.zero);
           final b = divide(20, 4)[$]; // sync
-          return a + b;
+          return Ok(a + b);
         },
         onCatch: _handleError,
       );

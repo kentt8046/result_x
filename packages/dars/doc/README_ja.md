@@ -2,9 +2,9 @@
 
 [![pub package](https://img.shields.io/pub/v/dars.svg)](https://pub.dev/packages/dars)
 [![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![codecov](https://codecov.io/gh/kentt8046/dars/branch/main/graph/badge.svg)](https://codecov.io/gh/kentt8046/dars)
+[![codecov](https://codecov.io/gh/kentt8046/dars/branch/main/graph/badge.svg?flag=dars)](https://codecov.io/gh/kentt8046/dars)
 
-[English](https://github.com/kentt8046/dars/blob/main/README.md) | **日本語**
+[English](../README.md) | **日本語**
 
 Dartらしい使い心地を追求したResult型パッケージ。
 
@@ -18,12 +18,13 @@ Dartらしい使い心地を追求したResult型パッケージ。
 - **完全な非同期サポート** - `FutureResult` で全メソッドが利用可能
 - **Nullable→Result変換** - `T?.toResult()` 拡張で簡単変換
 - **型安全なAPI** - コンパイル時の安全性を保証
+- **テストサポート** - 専用の [dars_test](https://pub.dev/packages/dars_test) パッケージでスマートなResult Matcherを提供
 
 ## インストール
 
 ```yaml
 dependencies:
-  dars: ^0.1.0
+  dars:
 ```
 
 または:
@@ -87,7 +88,7 @@ Result<int, String> calculate(int a, int b, int c) {
   return Result(($) {
     final ab = divide(a, b)[$];  // Errなら早期リターン
     final cd = divide(c, 1)[$];
-    return ab + cd;
+    return Ok(ab + cd);
   }, onCatch: (e, s) => Err('予期しないエラー: $e'));
 }
 ```
@@ -103,7 +104,7 @@ Future<Result<String, String>> fetchUser(int id) {
       Err<String, String>('無効なID')[$];
     }
     await Future.delayed(Duration(milliseconds: 100));
-    return 'User #$id';
+    return Ok('User #$id');
   }, onCatch: (e, s) => Err('予期しないエラー: $e'));
 }
 ```
@@ -158,11 +159,11 @@ final result = name.toResult(orElse: () => 'Name not found');
 
 ## 完全な例
 
-包括的なデモは [example/example.dart](packages/dars/example/example.dart) を参照してください。
+包括的なデモは [example/example.dart](https://github.com/kentt8046/dars/blob/main/packages/dars/example/example.dart) を参照してください。
 
 ## 追加情報
 
-- 📋 [Design Document (日本語)](https://github.com/kentt8046/result_x/blob/main/docs/design_doc.md)
+- 📋 [Design Document (日本語)](https://github.com/kentt8046/dars/blob/main/docs/design_doc/dars.md)
 
 ## ライセンス
 

@@ -4,7 +4,7 @@
 [![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![codecov](https://codecov.io/gh/kentt8046/dars/branch/main/graph/badge.svg)](https://codecov.io/gh/kentt8046/dars)
 
-**English** | [日本語](https://github.com/kentt8046/dars/blob/main/docs/README_ja.md)
+**English** | [日本語](packages/dars/doc/README_ja.md)
 
 A Dart-idiomatic Result type package with first-class developer experience.
 
@@ -18,12 +18,13 @@ A Dart-idiomatic Result type package with first-class developer experience.
 - **Full async support** - `FutureResult` with all methods available
 - **Nullable-to-Result conversion** - Easy `T?.toResult()` extension
 - **Type-safe API** - Compile-time safety for error handling
+- **Testing support** - Dedicated [dars_test](packages/dars_test/README.md) package with smart Result matchers
 
 ## Installation
 
 ```yaml
 dependencies:
-  dars: ^0.1.0
+  dars:
 ```
 
 Or run:
@@ -87,7 +88,7 @@ Result<int, String> calculate(int a, int b, int c) {
   return Result(($) {
     final ab = divide(a, b)[$];  // Returns early if Err
     final cd = divide(c, 1)[$];
-    return ab + cd;
+    return Ok(ab + cd);
   }, onCatch: (e, s) => Err('Unexpected: $e'));
 }
 ```
@@ -103,7 +104,7 @@ Future<Result<String, String>> fetchUser(int id) {
       Err<String, String>('Invalid ID')[$];
     }
     await Future.delayed(Duration(milliseconds: 100));
-    return 'User #$id';
+    return Ok('User #$id');
   }, onCatch: (e, s) => Err('Unexpected: $e'));
 }
 ```
@@ -160,7 +161,7 @@ See [example/example.dart](packages/dars/example/example.dart) for a comprehensi
 
 ## Additional Information
 
-- 📋 [Design Document (日本語)](https://github.com/kentt8046/result_x/blob/main/docs/design_doc.md)
+- 📋 [Design Document (日本語)](https://github.com/kentt8046/dars/blob/main/docs/design_doc/dars.md)
 
 ## License
 
