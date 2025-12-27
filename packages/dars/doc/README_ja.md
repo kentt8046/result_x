@@ -4,7 +4,7 @@
 [![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![codecov](https://codecov.io/gh/kentt8046/dars/branch/main/graph/badge.svg?flag=dars)](https://codecov.io/gh/kentt8046/dars)
 
-[English](https://github.com/kentt8046/dars/blob/main/README.md) | **日本語**
+[English](../README.md) | **日本語**
 
 Dartらしい使い心地を追求したResult型パッケージ。
 
@@ -18,6 +18,7 @@ Dartらしい使い心地を追求したResult型パッケージ。
 - **完全な非同期サポート** - `FutureResult` で全メソッドが利用可能
 - **Nullable→Result変換** - `T?.toResult()` 拡張で簡単変換
 - **型安全なAPI** - コンパイル時の安全性を保証
+- **テストサポート** - 専用の [dars_test](https://pub.dev/packages/dars_test) パッケージでスマートなResult Matcherを提供
 
 ## インストール
 

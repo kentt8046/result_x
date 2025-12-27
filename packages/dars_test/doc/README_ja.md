@@ -6,7 +6,7 @@
 
 `dars` パッケージのためのテストユーティリティおよび Matcher です。
 
-[English](https://github.com/kentt8046/dars/blob/main/packages/dars_test/README.md) | **日本語**
+[English](../README.md) | **日本語**
 
 ## 特徴
 
@@ -52,7 +52,7 @@ void main() {
 
 ## 例
 
-詳細な使い方は [example/example.dart](https://github.com/kentt8046/dars/blob/main/packages/dars_test/example/example.dart) を参照してください。
+詳細な使い方は [example/example.dart](../example/example.dart) を参照してください。
 
 ## エラーメッセージ
 

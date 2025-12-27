@@ -4,7 +4,7 @@
 [![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![codecov](https://codecov.io/gh/kentt8046/dars/branch/main/graph/badge.svg)](https://codecov.io/gh/kentt8046/dars)
 
-**English** | [日本語](https://github.com/kentt8046/dars/blob/main/packages/dars/doc/README_ja.md)
+**English** | [日本語](packages/dars/doc/README_ja.md)
 
 A Dart-idiomatic Result type package with first-class developer experience.
 
@@ -18,6 +18,7 @@ A Dart-idiomatic Result type package with first-class developer experience.
 - **Full async support** - `FutureResult` with all methods available
 - **Nullable-to-Result conversion** - Easy `T?.toResult()` extension
 - **Type-safe API** - Compile-time safety for error handling
+- **Testing support** - Dedicated [dars_test](packages/dars_test/README.md) package with smart Result matchers
 
 ## Installation
 

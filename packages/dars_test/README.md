@@ -6,7 +6,7 @@
 
 Testing utilities and matchers for the `dars` package.
 
-**English** | [日本語](https://github.com/kentt8046/dars/blob/main/packages/dars_test/doc/README_ja.md)
+**English** | [日本語](doc/README_ja.md)
 
 ## Features
 
@@ -52,7 +52,7 @@ void main() {
 
 ## Example
 
-See [example/example.dart](https://github.com/kentt8046/dars/blob/main/packages/dars_test/example/example.dart) for more detailed examples.
+See [example/example.dart](example/example.dart) for more detailed examples.
 
 ## Error Messages
 
