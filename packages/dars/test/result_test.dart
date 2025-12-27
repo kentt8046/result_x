@@ -313,7 +313,7 @@ void main() {
 
   group('Result factory', () {
     test('returns Ok when function succeeds', () {
-      final result = Result<int, String>(($) => 42, onCatch: handleError);
+      final result = Result<int, String>(($) => const Ok(42), onCatch: handleError);
       expect(result, const Ok<int, String>(42));
     });
 
@@ -321,7 +321,7 @@ void main() {
       final result = Result<int, String>(
         ($) {
           const Err<int, String>('error')[$];
-          return 42;
+          return const Ok(42);
         },
         onCatch: handleError,
       );
@@ -335,7 +335,7 @@ void main() {
         ($) {
           final a = getValue(10)[$];
           final b = getValue(20)[$];
-          return a + b;
+          return Ok(a + b);
         },
         onCatch: handleError,
       );
@@ -350,7 +350,7 @@ void main() {
           final a = getValue(10)[$];
           final b = getValue(-5)[$];
           final c = getValue(20)[$];
-          return a + b + c;
+          return Ok(a + b + c);
         },
         onCatch: handleError,
       );
@@ -380,7 +380,7 @@ void main() {
   group('Result.async', () {
     test('returns Ok when async function succeeds', () async {
       final result = await Result.async<int, String>(
-        ($) async => 42,
+        ($) async => const Ok(42),
         onCatch: handleError,
       );
       expect(result, const Ok<int, String>(42));
@@ -390,7 +390,7 @@ void main() {
       final result = await Result.async<int, String>(
         ($) async {
           const Err<int, String>('error')[$];
-          return 42;
+          return const Ok(42);
         },
         onCatch: handleError,
       );
@@ -404,7 +404,7 @@ void main() {
         ($) async {
           final a = await asyncGetValue(10)[$];
           final b = await asyncGetValue(20)[$];
-          return a + b;
+          return Ok(a + b);
         },
         onCatch: handleError,
       );

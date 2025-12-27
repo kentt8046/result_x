@@ -36,17 +36,17 @@ sealed class Result<T, E extends Object> {
   ///   ($) {
   ///     final a = getValueA()[$];  // Returns early if Err
   ///     final b = getValueB()[$];  // Returns early if Err
-  ///     return a + b;
+  ///     return Ok(a + b);
   ///   },
   ///   onCatch: (e, s) => Err('Error: $e'),
   /// );
   /// ```
   factory Result(
-    T Function(EarlyReturnSymbol<E> $) fn, {
+    Result<T, E> Function(EarlyReturnSymbol<E> $) fn, {
     required Result<T, E> Function(Object error, StackTrace stackTrace) onCatch,
   }) {
     try {
-      return Ok(fn(EarlyReturnSymbol<E>._()));
+      return fn(EarlyReturnSymbol<E>._());
     } on _EarlyReturn<E> catch (e) {
       return Err(e.error);
     } on Error {
@@ -68,20 +68,20 @@ sealed class Result<T, E extends Object> {
   ///   ($) async {
   ///     final user = await getUser()[$];
   ///     final data = await getData(user)[$];
-  ///     return data;
+  ///     return Ok(data);
   ///   },
   ///   onCatch: (e, s) => Err('Error: $e'),
   /// );
   /// ```
   static Future<Result<T, E>> async<T, E extends Object>(
-    Future<T> Function(EarlyReturnSymbol<E> $) fn, {
+    Future<Result<T, E>> Function(EarlyReturnSymbol<E> $) fn, {
     required FutureOr<Result<T, E>> Function(
       Object error,
       StackTrace stackTrace,
     ) onCatch,
   }) async {
     try {
-      return Ok(await fn(EarlyReturnSymbol<E>._()));
+      return await fn(EarlyReturnSymbol<E>._());
     } on _EarlyReturn<E> catch (e) {
       return Err(e.error);
     } on Error {

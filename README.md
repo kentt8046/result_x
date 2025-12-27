@@ -87,7 +87,7 @@ Result<int, String> calculate(int a, int b, int c) {
   return Result(($) {
     final ab = divide(a, b)[$];  // Returns early if Err
     final cd = divide(c, 1)[$];
-    return ab + cd;
+    return Ok(ab + cd);
   }, onCatch: (e, s) => Err('Unexpected: $e'));
 }
 ```
@@ -103,7 +103,7 @@ Future<Result<String, String>> fetchUser(int id) {
       Err<String, String>('Invalid ID')[$];
     }
     await Future.delayed(Duration(milliseconds: 100));
-    return 'User #$id';
+    return Ok('User #$id');
   }, onCatch: (e, s) => Err('Unexpected: $e'));
 }
 ```
