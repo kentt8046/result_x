@@ -25,7 +25,7 @@ dev_dependencies:
 
 ```dart
 import 'package:dars/dars.dart';
-import 'package:dars_test/matcher.dart';
+import 'package:dars_test/dars_test.dart';
 import 'package:test/test.dart';
 
 void main() {
