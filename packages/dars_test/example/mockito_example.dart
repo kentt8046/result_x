@@ -2,7 +2,12 @@ import 'dart:async';
 
 import 'package:dars/dars.dart';
 import 'package:dars_test/mockito.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mockito/annotations.dart';
+
+/// Generate mocks using @GenerateNiceMocks.
+/// Run `dart run build_runner build` to generate mockito_example.mocks.dart
+@GenerateNiceMocks([MockSpec<ApiService>()])
+import 'mockito_example.mocks.dart';
 
 // because reachable from main check is not needed for examples.
 // ignore_for_file: unreachable_from_main, avoid_print
@@ -14,35 +19,6 @@ abstract class ApiService {
 
   /// Fetches data asynchronously.
   Future<Result<String, Exception>> fetchDataAsync(String id);
-}
-
-/// Manual mock for ApiService.
-class MockApiService extends Mock implements ApiService {
-  @override
-  Result<String, Exception> fetchData(String? id) =>
-      // Mockito generates this code in real projects.
-      // ignore: invalid_use_of_visible_for_testing_member
-      super.noSuchMethod(
-        Invocation.method(#fetchData, [id]),
-        returnValue: const Err<String, Exception>(EarlyReturnException()),
-      ) as Result<String, Exception>;
-
-  @override
-  Future<Result<String, Exception>> fetchDataAsync(String? id) =>
-      // Mockito generates this code in real projects.
-      // ignore: invalid_use_of_visible_for_testing_member
-      super.noSuchMethod(
-        Invocation.method(#fetchDataAsync, [id]),
-        returnValue: Future.value(
-          const Err<String, Exception>(EarlyReturnException()),
-        ),
-      ) as Future<Result<String, Exception>>;
-}
-
-/// A dummy exception for the example.
-class EarlyReturnException implements Exception {
-  /// Constructor.
-  const EarlyReturnException();
 }
 
 void main() async {

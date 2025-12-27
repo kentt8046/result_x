@@ -1,8 +1,6 @@
 import 'dart:async';
 
 import 'package:dars/dars.dart';
-// Because this is an optional integration and users should provide their own mockito dependency.
-// ignore: depend_on_referenced_packages
 import 'package:mockito/mockito.dart';
 
 /// A wrapper for Mockito's [when] that simplifies stubbing methods returning [Result].
