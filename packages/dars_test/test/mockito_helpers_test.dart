@@ -37,6 +37,9 @@ class MockAuthService extends Mock implements AuthService {
 abstract class NoDummyService {
   /// A method that returns a Result but has no dummy registered.
   Result<int, String> getResult();
+
+  /// A method that returns a `Future<Result>` but has no dummy registered.
+  Future<Result<int, String>> getResultAsync();
 }
 
 /// Mock for the unprepared service.
@@ -49,12 +52,19 @@ class MockNoDummyService extends Mock implements NoDummyService {
       ) as Result<int, String>;
 
   @override
+  Future<Result<int, String>> getResultAsync() =>
+      // We call our own noSuchMethod override to trigger the simulated error.
+      noSuchMethod(
+        Invocation.method(#getResultAsync, []),
+      ) as Future<Result<int, String>>;
+
+  @override
   dynamic noSuchMethod(
     Invocation invocation, {
     Object? returnValue,
     Object? returnValueForMissingStub,
   }) {
-    if (returnValue == null && invocation.memberName == #getResult) {
+    if (returnValue == null && (invocation.memberName == #getResult || invocation.memberName == #getResultAsync)) {
       // Because we want to simulate Mockito's natural MissingDummyValueError.
       // ignore: only_throw_errors
       throw MissingDummyValueError(Result<int, String>);
@@ -117,6 +127,23 @@ void main() {
             (e) => e.toString(),
             'toString()',
             contains('MissingDummyValueError occurred while stubbing a Result-returning method'),
+          ),
+        ),
+      );
+    });
+
+    test('should throw detailed Exception when MissingDummyValueError occurs in whenFutureResult', () {
+      final mockNoDummy = MockNoDummyService();
+
+      expect(
+        () => whenFutureResult(mockNoDummy.getResultAsync),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'toString()',
+            contains(
+              'MissingDummyValueError occurred while stubbing a Future<Result>-returning method',
+            ),
           ),
         ),
       );
