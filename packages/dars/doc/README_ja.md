@@ -2,7 +2,7 @@
 
 [![pub package](https://img.shields.io/pub/v/dars.svg)](https://pub.dev/packages/dars)
 [![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![codecov](https://codecov.io/gh/kentt8046/dars/branch/main/graph/badge.svg)](https://codecov.io/gh/kentt8046/dars)
+[![codecov](https://codecov.io/gh/kentt8046/dars/branch/main/graph/badge.svg?flag=dars)](https://codecov.io/gh/kentt8046/dars)
 
 [English](https://github.com/kentt8046/dars/blob/main/README.md) | **日本語**
 
@@ -158,11 +158,11 @@ final result = name.toResult(orElse: () => 'Name not found');
 
 ## 完全な例
 
-包括的なデモは [example/example.dart](packages/dars/example/example.dart) を参照してください。
+包括的なデモは [example/example.dart](https://github.com/kentt8046/dars/blob/main/packages/dars/example/example.dart) を参照してください。
 
 ## 追加情報
 
-- 📋 [Design Document (日本語)](https://github.com/kentt8046/result_x/blob/main/docs/design_doc.md)
+- 📋 [Design Document (日本語)](https://github.com/kentt8046/dars/blob/main/docs/design_doc/dars.md)
 
 ## ライセンス
 

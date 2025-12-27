@@ -77,7 +77,10 @@ expect(result, isOk<int>(42)); // 型指定がある場合はエラーメッセ�
 | 値違い | `Expected: Ok(42) but was: Ok(0)` |
 | 述語不一致 | `Expected: Ok(matches predicate) but was: Ok(0) which does not match predicate` |
 
-### 3.3 Mockito 連携 (`whenResult`)
+### 3.3 Mockito 連携 (`whenResult`) - 将来の機能
+
+> [!NOTE]
+> この機能は v0.3.0 以降で実装予定です。
 
 `sealed class` 特有の `provideDummy` 手間を解消する。
 
@@ -111,8 +114,8 @@ Matcher を内部的に分割し、責任を明確化する。
 
 | バージョン | 内容 |
 |-----------|------|
-| **v0.2.0** | 初期リリース（コア Matcher + whenResult）|
-| **v0.3.0** | lint ルール連携、追加ユーティリティ |
+| **v0.2.0** | 初期リリース（コア Matcher）|
+| **v0.3.0** | Mockito 連携 (`whenResult`)、lint ルール連携、追加ユーティリティ |
 | **v1.0.0** | API 安定化 |
 
 ---

@@ -2,6 +2,7 @@
 
 [![pub package](https://img.shields.io/pub/v/dars_test.svg)](https://pub.dev/packages/dars_test)
 [![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![codecov](https://codecov.io/gh/kentt8046/dars/branch/main/graph/badge.svg?flag=dars_test)](https://codecov.io/gh/kentt8046/dars)
 
 Testing utilities and matchers for the `dars` package.
 

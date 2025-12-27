@@ -4,7 +4,7 @@
 [![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![codecov](https://codecov.io/gh/kentt8046/dars/branch/main/graph/badge.svg)](https://codecov.io/gh/kentt8046/dars)
 
-**English** | [日本語](https://github.com/kentt8046/dars/blob/main/docs/README_ja.md)
+**English** | [日本語](https://github.com/kentt8046/dars/blob/main/packages/dars/doc/README_ja.md)
 
 A Dart-idiomatic Result type package with first-class developer experience.
 
@@ -160,7 +160,7 @@ See [example/example.dart](packages/dars/example/example.dart) for a comprehensi
 
 ## Additional Information
 
-- 📋 [Design Document (日本語)](https://github.com/kentt8046/result_x/blob/main/docs/design_doc.md)
+- 📋 [Design Document (日本語)](https://github.com/kentt8046/dars/blob/main/docs/design_doc/dars.md)
 
 ## License
 

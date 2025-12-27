@@ -1,8 +1,7 @@
 name: dars_test
 description: Testing utilities and matchers for the dars package.
-publish_to: none
-version: 0.1.0
-repository: https://github.com/kentt8046/result_x/blob/main/packages/dars_test/
+version: 0.2.0
+repository: https://github.com/kentt8046/dars/blob/main/packages/dars_test/
 
 topics:
   - result-type
