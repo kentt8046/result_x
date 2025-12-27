@@ -19,7 +19,7 @@ import 'package:matcher/matcher.dart';
 /// ```dart
 /// expect(result, isOk<int>(42));
 /// ```
-const isOk = _ResultRootMatcher(isOk: true);
+const isOk = _ResultRootMatcher(expectsOk: true);
 
 /// A matcher that matches a [Result] that is [Err].
 ///
@@ -39,104 +39,130 @@ const isOk = _ResultRootMatcher(isOk: true);
 /// ```dart
 /// expect(result, isErr<String>('error'));
 /// ```
-const isErr = _ResultRootMatcher(isOk: false);
+const isErr = _ResultRootMatcher(expectsOk: false);
 
-const _noExpect = Object();
+/// Sentinel value to detect when no expectation is provided.
+const _sentinel = Object();
 
+/// Keys used in matchState map for tracking match failures.
+class _MatchStateKey {
+  static const typeMismatch = 'typeMismatch';
+  static const predicateMismatch = 'predicateMismatch';
+  static const actualType = 'actualType';
+}
+
+/// Root matcher that can be used as a constant or called as a function.
 class _ResultRootMatcher extends _ResultVariantMatcher<dynamic> {
-  const _ResultRootMatcher({required super.isOk}) : super();
+  const _ResultRootMatcher({required super.expectsOk}) : super();
 
   /// Returns a matcher that matches the [Result] variant and its value/error.
-  _ResultVariantMatcher<T> call<T>([Object? valueOrMatcher = _noExpect]) {
+  _ResultVariantMatcher<T> call<T>([Object? valueOrMatcher = _sentinel]) {
     return _ResultVariantMatcher<T>(
-      isOk: _isOkVariant,
-      expect: valueOrMatcher == _noExpect ? null : valueOrMatcher,
-      hasExpect: valueOrMatcher != _noExpect,
+      expectsOk: _expectsOk,
+      expectation: valueOrMatcher == _sentinel ? null : valueOrMatcher,
+      hasExpectation: valueOrMatcher != _sentinel,
     );
   }
 }
 
+/// Matcher for Result variants with optional value/type checking.
 class _ResultVariantMatcher<V> extends Matcher {
   const _ResultVariantMatcher({
-    required bool isOk,
-    Object? expect,
-    bool hasExpect = false,
-  })  : _isOkVariant = isOk,
-        _expect = expect,
-        _hasExpect = hasExpect;
-  final bool _isOkVariant;
-  final Object? _expect;
-  final bool _hasExpect;
+    required bool expectsOk,
+    Object? expectation,
+    bool hasExpectation = false,
+  })  : _expectsOk = expectsOk,
+        _expectation = expectation,
+        _hasExpectation = hasExpectation;
+
+  /// Whether this matcher expects an Ok variant (true) or Err variant (false).
+  final bool _expectsOk;
+
+  /// The expected value, matcher, or predicate function.
+  final Object? _expectation;
+
+  /// Whether an expectation was explicitly provided.
+  final bool _hasExpectation;
 
   @override
   bool matches(Object? item, Map<dynamic, dynamic> matchState) {
     if (item is! Result) return false;
 
-    if (_isOkVariant) {
-      if (!item.isOk) return false;
-      if (!_hasExpect && V == dynamic) return true;
-      final value = item.ok();
-      return _matchesValue(value, matchState);
-    } else {
-      if (!item.isErr) return false;
-      if (!_hasExpect && V == dynamic) return true;
-      final error = item.err();
-      return _matchesValue(error, matchState);
-    }
+    // Check if the variant matches
+    final isExpectedVariant = _expectsOk ? item.isOk : item.isErr;
+    if (!isExpectedVariant) return false;
+
+    // If no type check and no expectation, match any value
+    if (!_hasExpectation && V == dynamic) return true;
+
+    // Get the actual value from the Result
+    final actualValue = _expectsOk ? item.ok() : item.err();
+    return _matchesValue(actualValue, matchState);
   }
 
+  /// Checks if the actual value matches the expected value/type/matcher.
   bool _matchesValue(Object? actual, Map<dynamic, dynamic> matchState) {
     // Type check
     if (V != dynamic && actual is! V) {
-      matchState['typeMismatch'] = true;
-      matchState['actualType'] = actual.runtimeType;
+      matchState[_MatchStateKey.typeMismatch] = true;
+      matchState[_MatchStateKey.actualType] = actual.runtimeType;
       return false;
     }
 
-    if (!_hasExpect) return true;
+    // No expectation means type-only check passed
+    if (!_hasExpectation) return true;
 
-    final expected = _expect;
+    final expected = _expectation;
+
+    // Matcher expectation
     if (expected is Matcher) {
-      if (expected.matches(actual, matchState)) return true;
-      return false;
-    } else if (expected is Function) {
+      return expected.matches(actual, matchState);
+    }
+
+    // Predicate function expectation
+    if (expected is Function) {
       try {
         // Dynamic call is necessary to support arbitrary predicate functions.
         // ignore: avoid_dynamic_calls
         if (expected(actual) == true) return true;
-        matchState['predicateMismatch'] = true;
+        matchState[_MatchStateKey.predicateMismatch] = true;
         return false;
       } catch (_) {
         return false;
       }
-    } else {
-      final matcher = equals(expected);
-      return matcher.matches(actual, matchState);
     }
+
+    // Value equality expectation
+    return equals(expected).matches(actual, matchState);
   }
 
   @override
   Description describe(Description description) {
-    final variantName = _isOkVariant ? 'Ok' : 'Err';
+    final variantName = _expectsOk ? 'Ok' : 'Err';
     description.add(variantName);
 
     if (V != dynamic) {
       description.add('<$V>');
     }
 
-    if (_hasExpect) {
+    if (_hasExpectation) {
       description.add('(');
-      final expected = _expect;
-      if (expected is Matcher) {
-        expected.describe(description);
-      } else if (expected is Function) {
-        description.add('matches predicate');
-      } else {
-        description.addDescriptionOf(expected);
-      }
+      _describeExpectation(description);
       description.add(')');
     }
     return description;
+  }
+
+  /// Describes the expected value/matcher/predicate.
+  void _describeExpectation(Description description) {
+    final expected = _expectation;
+    if (expected is Matcher) {
+      expected.describe(description);
+    } else if (expected is Function) {
+      description.add('matches predicate');
+    } else {
+      description.addDescriptionOf(expected);
+    }
   }
 
   @override
@@ -153,34 +179,56 @@ class _ResultVariantMatcher<V> extends Matcher {
     final actualVariant = item.isOk ? 'Ok' : 'Err';
     final actualValue = item.isOk ? item.ok() : item.err();
 
-    if (item.isOk != _isOkVariant) {
-      mismatchDescription.add('was: ').add(actualVariant).add('(').addDescriptionOf(actualValue).add(')');
-      return mismatchDescription;
+    // Variant mismatch (Ok vs Err)
+    if (item.isOk != _expectsOk) {
+      return _describeActualResult(
+        mismatchDescription,
+        actualVariant,
+        actualValue,
+      );
     }
 
-    // Same variant, but mismatch in value/type
-    if (matchState['typeMismatch'] == true) {
-      final actualType = matchState['actualType'];
-      mismatchDescription
-          .add('was: ')
-          .add(actualVariant)
-          .add('<$actualType>')
-          .add('(')
-          .addDescriptionOf(actualValue)
-          .add(')');
-      return mismatchDescription;
+    // Type mismatch
+    if (matchState[_MatchStateKey.typeMismatch] == true) {
+      final actualType = matchState[_MatchStateKey.actualType];
+      return _describeActualResult(
+        mismatchDescription,
+        actualVariant,
+        actualValue,
+        typeAnnotation: '$actualType',
+      );
     }
 
-    mismatchDescription.add('was: ').add(actualVariant).add('(').addDescriptionOf(actualValue).add(')');
+    // Value/predicate/matcher mismatch
+    _describeActualResult(mismatchDescription, actualVariant, actualValue);
 
-    if (matchState['predicateMismatch'] == true) {
+    if (matchState[_MatchStateKey.predicateMismatch] == true) {
       mismatchDescription.add(' which does not match predicate');
-    } else if (_hasExpect && _expect is Matcher) {
-      final matcher = _expect;
+    } else if (_hasExpectation && _expectation is Matcher) {
       mismatchDescription.add(' which ');
-      matcher.describeMismatch(actualValue, mismatchDescription, matchState, verbose);
+      _expectation.describeMismatch(
+        actualValue,
+        mismatchDescription,
+        matchState,
+        verbose,
+      );
     }
 
     return mismatchDescription;
+  }
+
+  /// Formats the actual result for mismatch description.
+  Description _describeActualResult(
+    Description description,
+    String variantName,
+    Object? value, {
+    String? typeAnnotation,
+  }) {
+    description.add('was: ').add(variantName);
+    if (typeAnnotation != null) {
+      description.add('<$typeAnnotation>');
+    }
+    description.add('(').addDescriptionOf(value).add(')');
+    return description;
   }
 }
