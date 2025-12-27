@@ -1,3 +1,29 @@
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+      dars:
+        flags:
+          - dars
+        paths:
+          - packages/dars/lib/**
+      dars_test:
+        flags:
+          - dars_test
+        paths:
+          - packages/dars_test/lib/**
+
+flags:
+  dars:
+    paths:
+      - packages/dars/lib/**
+    carryforward: true
+  dars_test:
+    paths:
+      - packages/dars_test/lib/**
+    carryforward: true
+
 comment:
   layout: " diff, flags, files"
   behavior: default

@@ -19,12 +19,15 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      should-test: ${{ steps.check.outputs.should-test }}
+      should-test-dars: ${{ steps.check-dars.outputs.should-test }}
+      should-test-dars-test: ${{ steps.check-dars-test.outputs.should-test }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - id: check
+
+      - name: Check dars changes
+        id: check-dars
         env:
           PR_BEFORE_SHA: ${{ github.event.before }}
         run: |
@@ -36,10 +39,24 @@ jobs:
             'pubspec.yaml' \
             'pubspec.lock'
 
-  test:
-    name: Test (Dart ${{ matrix.sdk }})
+      - name: Check dars_test changes
+        id: check-dars-test
+        env:
+          PR_BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          bash .github/scripts/check-source-changes.sh \
+            'packages/dars_test/pubspec.yaml' \
+            'packages/dars_test/lib/**' \
+            'packages/dars_test/test/**' \
+            'packages/dars_test/analysis_options.yaml' \
+            'packages/dars/lib/**' \
+            'pubspec.yaml' \
+            'pubspec.lock'
+
+  test-dars:
+    name: Test dars (Dart ${{ matrix.sdk }})
     needs: changes
-    if: needs.changes.outputs.should-test == 'true'
+    if: needs.changes.outputs.should-test-dars == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -92,6 +109,68 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           directory: packages/dars/coverage
+          flags: dars
+          fail_ci_if_error: true
+          verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-dars-test:
+    name: Test dars_test (Dart ${{ matrix.sdk }})
+    needs: changes
+    if: needs.changes.outputs.should-test-dars-test == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false # Don't stop all jobs if beta fails
+      matrix:
+        sdk:
+          - "3.6.0" # Minimum supported version (from pubspec.yaml)
+          - "stable" # Latest stable version
+          - "beta" # Next release support
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+
+      - name: Cache Pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Check format
+        if: matrix.sdk == 'stable' || matrix.sdk == 'beta'
+        run: dart format --set-exit-if-changed .
+        working-directory: packages/dars_test
+
+      - name: Analyze
+        if: matrix.sdk == 'stable' || matrix.sdk == 'beta'
+        run: dart analyze lib
+        working-directory: packages/dars_test
+
+      - name: Run tests with coverage
+        if: matrix.sdk == 'stable'
+        run: dart run coverage:test_with_coverage
+        working-directory: packages/dars_test
+
+      - name: Run tests without coverage
+        if: matrix.sdk != 'stable'
+        run: dart test
+        working-directory: packages/dars_test
+
+      - name: Upload coverage reports to Codecov
+        if: matrix.sdk == 'stable'
+        uses: codecov/codecov-action@v5
+        with:
+          directory: packages/dars_test/coverage
+          flags: dars_test
           fail_ci_if_error: true
           verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -99,7 +178,7 @@ jobs:
   # Notice when tests are skipped
   skip-notice:
     needs: changes
-    if: needs.changes.outputs.should-test != 'true'
+    if: needs.changes.outputs.should-test-dars != 'true' && needs.changes.outputs.should-test-dars-test != 'true'
     runs-on: ubuntu-latest
     steps:
       - run: echo "✅ Tests skipped - no relevant source files changed"
